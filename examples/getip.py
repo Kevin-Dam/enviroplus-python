@@ -2,6 +2,8 @@
 
 import logging
 
+import socket
+
 import st7735
 from fonts.ttf import RobotoMedium as UserFont
 from PIL import Image, ImageDraw, ImageFont
@@ -44,7 +46,22 @@ font = ImageFont.truetype(UserFont, font_size)
 text_colour = (255, 255, 255)
 back_colour = (0, 170, 170)
 
-message = "Hello, World!"
+def get_internal_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        # Connect to an external server (Google DNS) to determine local IP
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+    except Exception:
+        ip = "Unavailable"
+    finally:
+        s.close()
+    return ip
+
+print("Internal IP:", get_internal_ip())
+
+
+message = get_internal_ip() #"KMS, World!"
 
 x1, y1, x2, y2 = font.getbbox(message)
 size_x = x2 - x1
@@ -67,3 +84,5 @@ try:
 # Turn off backlight on control-c
 except KeyboardInterrupt:
     disp.set_backlight(0)
+
+
